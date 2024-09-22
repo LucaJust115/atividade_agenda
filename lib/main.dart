@@ -15,10 +15,12 @@ class MyApp extends StatelessWidget {
 
 class Cadastro extends StatefulWidget {
   final ContatoRepository contatos;
-  Cadastro({required this.contatos});
+  final Contato? contato;
+  final int? index;
+  Cadastro({required this.contatos, this.contato, this.index});
 
   @override
-  State<Cadastro> createState() => _CadastroState(contatos: contatos);
+  State<Cadastro> createState() => _CadastroState(contatos: contatos, contato: contato, index: index);
 }
 
 class _CadastroState extends State<Cadastro> {
@@ -26,14 +28,26 @@ class _CadastroState extends State<Cadastro> {
   final TextEditingController telefoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final ContatoRepository contatos;
+  final Contato? contato;
+  final int? index;
 
-  _CadastroState({required this.contatos});
+  _CadastroState({required this.contatos, this.contato, this.index});
+
+  @override
+  void initState() {
+    super.initState();
+    if (contato != null) {
+      nomeController.text = contato!.nome;
+      telefoneController.text = contato!.telefone;
+      emailController.text = contato!.email;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de Contato'),
+        title: Text(contato == null ? 'Cadastro de Contato' : 'Editar Contato'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -55,12 +69,25 @@ class _CadastroState extends State<Cadastro> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  contatos.addContato(Contato(
-                      nome: nomeController.text, telefone: telefoneController.text, email: emailController.text ));
+                  if (contato == null) {
+                    contatos.addContato(Contato(
+                        nome: nomeController.text,
+                        telefone: telefoneController.text,
+                        email: emailController.text));
+                  } else {
+                    contatos.updateContato(
+                      index!,
+                      Contato(
+                        nome: nomeController.text,
+                        telefone: telefoneController.text,
+                        email: emailController.text,
+                      ),
+                    );
+                  }
                 });
                 Navigator.pop(context);
               },
-              child: Text('Salvar'),
+              child: Text(contato == null ? 'Salvar' : 'Editar'),
             ),
           ],
         ),
@@ -133,7 +160,40 @@ class ListagemState extends State<Listagem> {
           Contato c = contatos.getContatos()[index];
           return ListTile(
             title: Text(c.nome),
-            subtitle: Text("telefone: "+c.telefone+"\nemail: "+c.email),
+            subtitle: Text("telefone: " + c.telefone + "\nemail: " + c.email),
+            onTap: () { //é preciso clicar na tela para ver opcoes de edicao e remocao
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text("Opções"),
+                  content: Text("Deseja editar ou remover o contato?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Cadastro(contatos: contatos, contato: c, index: index),
+                          ),
+                        );
+                      },
+                      child: Text('Editar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          contatos.removeContato(index);
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Text('Remover'),
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
@@ -153,6 +213,14 @@ class ContatoRepository {
 
   void addContato(Contato c) {
     contatos.add(c);
+  }
+
+  void updateContato(int index, Contato c) {
+    contatos[index] = c;
+  }
+
+  void removeContato(int index) {
+    contatos.removeAt(index);
   }
 
   List<Contato> getContatos() {
