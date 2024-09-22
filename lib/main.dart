@@ -14,25 +14,26 @@ class MyApp extends StatelessWidget {
 }
 
 class Cadastro extends StatefulWidget {
-  final CarrosRepository carros;
-  Cadastro({required this.carros});
+  final ContatoRepository contatos;
+  Cadastro({required this.contatos});
 
   @override
-  State<Cadastro> createState() => _CadastroState(carros: carros);
+  State<Cadastro> createState() => _CadastroState(contatos: contatos);
 }
 
 class _CadastroState extends State<Cadastro> {
   final TextEditingController nomeController = TextEditingController();
-  final TextEditingController corController = TextEditingController();
-  final CarrosRepository carros;
+  final TextEditingController telefoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final ContatoRepository contatos;
 
-  _CadastroState({required this.carros});
+  _CadastroState({required this.contatos});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de Carros'),
+        title: Text('Cadastro de Contato'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -43,15 +44,19 @@ class _CadastroState extends State<Cadastro> {
               controller: nomeController,
             ),
             TextField(
-              decoration: InputDecoration(labelText: 'Entre com cor'),
-              controller: corController,
+              decoration: InputDecoration(labelText: 'Entre com telefone'),
+              controller: telefoneController,
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Entre com email'),
+              controller: emailController,
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  carros.addCarros(Carro(
-                      nome: nomeController.text, cor: corController.text));
+                  contatos.addContato(Contato(
+                      nome: nomeController.text, telefone: telefoneController.text, email: emailController.text ));
                 });
                 Navigator.pop(context);
               },
@@ -65,7 +70,7 @@ class _CadastroState extends State<Cadastro> {
 }
 
 class Principal extends StatelessWidget {
-  final CarrosRepository carros = CarrosRepository();
+  final ContatoRepository contatos = ContatoRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +85,7 @@ class Principal extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Cadastro(carros: carros),
+                  builder: (context) => Cadastro(contatos: contatos),
                 ),
               );
             },
@@ -91,7 +96,7 @@ class Principal extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Listagem(carros: carros),
+                  builder: (context) => Listagem(contatos: contatos),
                 ),
               );
             },
@@ -104,31 +109,31 @@ class Principal extends StatelessWidget {
 }
 
 class Listagem extends StatefulWidget {
-  final CarrosRepository carros;
-  Listagem({required this.carros});
+  final ContatoRepository contatos;
+  Listagem({required this.contatos});
 
   @override
-  State<Listagem> createState() => ListagemState(carros: carros);
+  State<Listagem> createState() => ListagemState(contatos: contatos);
 }
 
 class ListagemState extends State<Listagem> {
-  final CarrosRepository carros;
+  final ContatoRepository contatos;
 
-  ListagemState({required this.carros});
+  ListagemState({required this.contatos});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Listagem de Carros'),
+        title: Text('Listagem de Contatos'),
       ),
       body: ListView.builder(
-        itemCount: carros.getCarros().length,
+        itemCount: contatos.getContatos().length,
         itemBuilder: (context, index) {
-          Carro c = carros.getCarros()[index];
+          Contato c = contatos.getContatos()[index];
           return ListTile(
             title: Text(c.nome),
-            subtitle: Text(c.cor),
+            subtitle: Text("telefone: "+c.telefone+"\nemail: "+c.email),
           );
         },
       ),
@@ -136,20 +141,21 @@ class ListagemState extends State<Listagem> {
   }
 }
 
-class Carro {
+class Contato {
   final String nome;
-  final String cor;
-  Carro({required this.nome, required this.cor});
+  final String telefone;
+  final String email;
+  Contato({required this.nome, required this.telefone, required this.email});
 }
 
-class CarrosRepository {
-  final List<Carro> carros = [];
+class ContatoRepository {
+  final List<Contato> contatos = [];
 
-  void addCarros(Carro c) {
-    carros.add(c);
+  void addContato(Contato c) {
+    contatos.add(c);
   }
 
-  List<Carro> getCarros() {
-    return carros;
+  List<Contato> getContatos() {
+    return contatos;
   }
 }
