@@ -16,7 +16,7 @@ class ListagemState extends State<Listagem> {
   ListagemState({required this.contatos});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { //opcoes esteticas do codigo
     return Scaffold(
       appBar: AppBar(
         title: Text('Listagem de Contatos'),
@@ -28,7 +28,7 @@ class ListagemState extends State<Listagem> {
           return ListTile(
             title: Text(c.nome),
             subtitle: Text("telefone: " + c.telefone + "\nemail: " + c.email),
-            trailing: Icon(Icons.more_vert),  // Ícone de três pontinhos indicando mais opções
+            trailing: Icon(Icons.more_vert),  // icone de três pontinhos indicando mais opções
             onTap: () {
               showDialog(
                 context: context,

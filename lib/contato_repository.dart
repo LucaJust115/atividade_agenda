@@ -6,7 +6,7 @@ class Contato {
 }
 
 class ContatoRepository {
-  final List<Contato> contatos = [];
+  final List<Contato> contatos = []; //lista de contatos
 
   void addContato(Contato c) {
     contatos.add(c);
@@ -20,7 +20,7 @@ class ContatoRepository {
     contatos.removeAt(index);
   }
 
-  List<Contato> getContatos() {
+  List<Contato> getContatos() { //retorna os contatos que estao na lista
     return contatos;
   }
 }

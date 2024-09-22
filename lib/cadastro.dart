@@ -36,30 +36,30 @@ class _CadastroState extends State<Cadastro> {
 
   String? _validarNome(String? value) {
     if (value == null || value.isEmpty) {
-      return 'O nome não pode estar vazio'; // validação para o campo nome
+      return 'O nome não pode estar vazio'; // validacao do nome (vazio)
     }
     return null;
   }
 
   String? _validarTelefone(String? value) {
     if (value == null || value.isEmpty) {
-      return 'O telefone não pode estar vazio';
+      return 'O telefone não pode estar vazio'; // validacao do telefone (vazio)
     }
-    if (value.length != 11) {
-      return 'O telefone deve ter 11 dígitos'; // verifica se a quantidade de dígitos está correta
+    if (value.length != 11) {   // verificacao dos digitos do telefone (TENTEI USAR O REGEX, FRACASSEI)
+      return 'O telefone deve ter 11 dígitos';
     }
     return null;
   }
 
   String? _validarEmail(String? value) {
-    if (value == null || !value.contains('@')) { // verifica se e um endereco de email com '@'
-      return 'Email inválido. Deve conter @';
+    if (value == null || !value.contains('@')) {
+      return 'Email inválido. Deve conter @'; // validacao do email (nesse caso, basta ter o '@')
     }
     return null;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { // parte visual do codigo
     return Scaffold(
       appBar: AppBar(
         title: Text(contato == null ? 'Cadastro de Contato' : 'Editar Contato'),
@@ -73,14 +73,14 @@ class _CadastroState extends State<Cadastro> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Nome'),
                 controller: nomeController,
-                validator: _validarNome, // chama a funcao de validacao
+                validator: _validarNome,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Telefone (somente números)'),
                 controller: telefoneController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly, // permitir apenas números (TENTEI USAR O REGEX MAS FRACASSEI E NAO PRESTOU DE FORMA ALGUMA)
+                  FilteringTextInputFormatter.digitsOnly,
                 ],
                 validator: _validarTelefone,
               ),
@@ -115,7 +115,14 @@ class _CadastroState extends State<Cadastro> {
                     Navigator.pop(context);
                   }
                 },
-                child: Text(contato == null ? 'Salvar' : 'Editar'),
+                child: Text(contato == null ? 'Salvar' : 'Salvar Edição'), //botao para salvar a criacao do contato ou edicao do mesmo
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Volta para a tela anterior
+                },
+                child: Text('Voltar'),
               ),
             ],
           ),
