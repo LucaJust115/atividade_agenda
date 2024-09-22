@@ -161,7 +161,8 @@ class ListagemState extends State<Listagem> {
           return ListTile(
             title: Text(c.nome),
             subtitle: Text("telefone: " + c.telefone + "\nemail: " + c.email),
-            onTap: () { //é preciso clicar na tela para ver opcoes de edicao e remocao
+            trailing: Icon(Icons.more_vert),  // Ícone de três pontinhos indicando mais opções
+            onTap: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
