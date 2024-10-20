@@ -7,59 +7,75 @@ class Listagem extends StatefulWidget {
   Listagem({required this.contatos});
 
   @override
-  State<Listagem> createState() => ListagemState(contatos: contatos);
+  State<Listagem> createState() => _ListagemState(contatos: contatos);
 }
 
-class ListagemState extends State<Listagem> {
+class _ListagemState extends State<Listagem> {
   final ContatoRepository contatos;
+  _ListagemState({required this.contatos});
 
-  ListagemState({required this.contatos});
+  List<Contato> listaContatos = [];
+
+  void carregarContatos() async {
+    final contatosDb = await contatos.getContatos();
+    setState(() {
+      listaContatos = contatosDb;
+    });
+  }
 
   @override
-  Widget build(BuildContext context) { //opcoes esteticas do codigo
+  void initState() {
+    super.initState();
+    carregarContatos();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Listagem de Contatos'),
+        title: Text('Lista de Contatos'),
       ),
       body: ListView.builder(
-        itemCount: contatos.getContatos().length,
+        itemCount: listaContatos.length,
         itemBuilder: (context, index) {
-          Contato c = contatos.getContatos()[index];
+          final c = listaContatos[index];
           return ListTile(
             title: Text(c.nome),
-            subtitle: Text("telefone: " + c.telefone + "\nemail: " + c.email),
-            trailing: Icon(Icons.more_vert),  // icone de três pontinhos indicando mais opções
+            subtitle: Text(c.telefone),
             onTap: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: Text("Opções"),
-                  content: Text("Deseja editar ou remover o contato?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                Cadastro(contatos: contatos, contato: c, index: index),
-                          ),
-                        );
-                      },
-                      child: Text('Editar'),
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Opções"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text("Editar"),
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Cadastro(contatos: contatos, contato: c),
+                              ),
+                            );
+                            carregarContatos(); // da reload nos contatos apos a edicao
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          title: Text("Excluir"),
+                          onTap: () async {
+                            await contatos.removeContato(c.id!); // remove o contato selecionado
+                            carregarContatos(); // da reload nos contatos apos a remocao
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          contatos.removeContato(index);
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Text('Remover'),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
@@ -68,3 +84,4 @@ class ListagemState extends State<Listagem> {
     );
   }
 }
+

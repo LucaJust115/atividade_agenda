@@ -8,6 +8,7 @@ Esta é uma aplicação simples de uma agenda simplificada feita em Flutter para
 
 - Flutter
 - Dart
+- SQLite
 
 ## Funcionalidades
 
@@ -15,13 +16,14 @@ Esta é uma aplicação simples de uma agenda simplificada feita em Flutter para
 - **Edição de Contatos**: Permite editar as informações de contatos existentes.
 - **Remoção de Contatos**: Permite remover contatos da lista.
 - **Listagem de Contatos**: Exibe todos os contatos cadastrados em uma lista.
+- **Persistência de Dados**: Todos os dados são armazenados e recuperados utilizando o banco de dados SQLite, garantindo que as informações dos contatos permaneçam mesmo após o aplicativo ser fechado.
 
 ## Estrutura do Projeto
 
 O projeto é estruturado em três arquivos principais:
 
 1. **`main.dart`**: Ponto de entrada do aplicativo, contendo a navegação principal entre as telas de cadastro e listagem de contatos.
-2. **`contato_repository.dart`**: Contém a definição da classe `Contato` e `ContatoRepository` para gerenciar a lista de contatos.
+2. **`contato_repository.dart`**: Contém a definição da classe Contato e ContatoRepository para gerenciar a persistência dos contatos no banco de dados SQLite.
 3. **`cadastro.dart`**: Tela para adicionar e editar os contatos da agenda.
 4. **`listagem.dart`**: Tela que exibe todos os contatos cadastrados na agenda.
 
@@ -43,4 +45,14 @@ O projeto é estruturado em três arquivos principais:
 7. Se optar por editar, clique no botão 'Salvar Edição', volte e liste novamente para ver o contato com as alterações.
 8. Se optar por remover, basta clicar no botão apropriado que o contato será removido.
 9. Desde que respeite os requisitos de cada um dos dados, pode cadastrar quantos contatos desejar.
+
+## Persistência dos Dados:
+
+Todos os contatos cadastrados, editados ou removidos são atualizados no banco de dados SQLite, 
+garantindo que as informações sejam persistentes mesmo após o aplicativo ser fechado e reaberto.
+
+## Observações
+Certifique-se de que todos os campos estão preenchidos corretamente conforme os requisitos para evitar erros ao salvar ou editar contatos.
+
+
 

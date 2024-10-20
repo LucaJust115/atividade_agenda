@@ -34,32 +34,8 @@ class _CadastroState extends State<Cadastro> {
     }
   }
 
-  String? _validarNome(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'O nome não pode estar vazio'; // validacao do nome (vazio)
-    }
-    return null;
-  }
-
-  String? _validarTelefone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'O telefone não pode estar vazio'; // validacao do telefone (vazio)
-    }
-    if (value.length != 11) {   // verificacao dos digitos do telefone (TENTEI USAR O REGEX, FRACASSEI)
-      return 'O telefone deve ter 11 dígitos';
-    }
-    return null;
-  }
-
-  String? _validarEmail(String? value) {
-    if (value == null || !value.contains('@')) {
-      return 'Email inválido. Deve conter @'; // validacao do email (nesse caso, basta ter o '@')
-    }
-    return null;
-  }
-
   @override
-  Widget build(BuildContext context) { // parte visual do codigo
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(contato == null ? 'Cadastro de Contato' : 'Editar Contato'),
@@ -73,7 +49,12 @@ class _CadastroState extends State<Cadastro> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Nome'),
                 controller: nomeController,
-                validator: _validarNome,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'O nome não pode estar vazio';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Telefone (somente números)'),
@@ -82,47 +63,57 @@ class _CadastroState extends State<Cadastro> {
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                 ],
-                validator: _validarTelefone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'O telefone não pode estar vazio';
+                  }
+                  if (value.length != 11) {
+                    return 'O telefone deve ter 11 dígitos';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                validator: _validarEmail,
+                validator: (value) {
+                  if (value == null || !value.contains('@')) {
+                    return 'Email inválido. Deve conter @';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    setState(() {
-                      if (contato == null) {
-                        contatos.addContato(Contato(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // ADD botao p/ voltar à tela anterior
+                    },
+                    child: Text('Voltar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final novoContato = Contato(
+                          id: contato?.id,
                           nome: nomeController.text,
                           telefone: telefoneController.text,
                           email: emailController.text,
-                        ));
-                      } else {
-                        contatos.updateContato(
-                          index!,
-                          Contato(
-                            nome: nomeController.text,
-                            telefone: telefoneController.text,
-                            email: emailController.text,
-                          ),
                         );
+                        if (contato == null) {
+                          await contatos.addContato(novoContato); // add novo contato
+                        } else {
+                          await contatos.updateContato(novoContato); // faz o update do contato
+                        }
+                        Navigator.pop(context);
                       }
-                    });
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text(contato == null ? 'Salvar' : 'Salvar Edição'), //botao para salvar a criacao do contato ou edicao do mesmo
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Volta para a tela anterior
-                },
-                child: Text('Voltar'),
+                    },
+                    child: Text(contato == null ? 'Salvar' : 'Editar'), // add botao para salvar ou editar
+                  ),
+                ],
               ),
             ],
           ),
