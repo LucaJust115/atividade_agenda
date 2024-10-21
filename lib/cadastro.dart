@@ -4,13 +4,11 @@ import 'contato_repository.dart';
 
 class Cadastro extends StatefulWidget {
   final ContatoRepository contatos;
-  final Contato? contato;
-  final int? index;
 
-  Cadastro({required this.contatos, this.contato, this.index});
+  Cadastro({required this.contatos});
 
   @override
-  State<Cadastro> createState() => _CadastroState(contatos: contatos, contato: contato, index: index);
+  State<Cadastro> createState() => _CadastroState(contatos: contatos);
 }
 
 class _CadastroState extends State<Cadastro> {
@@ -19,26 +17,14 @@ class _CadastroState extends State<Cadastro> {
   final TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final ContatoRepository contatos;
-  final Contato? contato;
-  final int? index;
 
-  _CadastroState({required this.contatos, this.contato, this.index});
-
-  @override
-  void initState() {
-    super.initState();
-    if (contato != null) {
-      nomeController.text = contato!.nome;
-      telefoneController.text = contato!.telefone;
-      emailController.text = contato!.email;
-    }
-  }
+  _CadastroState({required this.contatos});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(contato == null ? 'Cadastro de Contato' : 'Editar Contato'),
+        title: Text('Cadastro de Contato'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -78,42 +64,25 @@ class _CadastroState extends State<Cadastro> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || !value.contains('@')) {
-                    return 'Email inválido. Deve conter @';
+                  if (value == null || value.isEmpty) {
+                    return 'O email não pode estar vazio';
                   }
                   return null;
                 },
               ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // ADD botao p/ voltar à tela anterior
-                    },
-                    child: Text('Voltar'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final novoContato = Contato(
-                          id: contato?.id,
-                          nome: nomeController.text,
-                          telefone: telefoneController.text,
-                          email: emailController.text,
-                        );
-                        if (contato == null) {
-                          await contatos.addContato(novoContato); // add novo contato
-                        } else {
-                          await contatos.updateContato(novoContato); // faz o update do contato
-                        }
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: Text(contato == null ? 'Salvar' : 'Editar'), // add botao para salvar ou editar
-                  ),
-                ],
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    contatos.addContato(Contato(
+                      nome: nomeController.text,
+                      telefone: telefoneController.text,
+                      email: emailController.text,
+                    ));
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Cadastrar'),
               ),
             ],
           ),

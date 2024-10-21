@@ -1,16 +1,15 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'dart:async';
 
 class Contato {
-  final int? id; // id exclusivo p/ cada contato, autoincrementado no banco de dados
+  final int? id;
   final String nome;
   final String telefone;
   final String email;
 
   Contato({this.id, required this.nome, required this.telefone, required this.email});
 
-  Map<String, dynamic> toMap() {  // converter um obj Contato p/ um Map p/ salvar no BD
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'nome': nome,
@@ -19,12 +18,33 @@ class Contato {
     };
   }
 
-  factory Contato.fromMap(Map<String, dynamic> map) { // criar um obj Contato de um Map do BD
+  factory Contato.fromMap(Map<String, dynamic> map) {
     return Contato(
       id: map['id'],
       nome: map['nome'],
       telefone: map['telefone'],
       email: map['email'],
+    );
+  }
+}
+
+class Usuario {
+  final int? id;
+  final String nome;
+
+  Usuario({this.id, required this.nome});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nome': nome,
+    };
+  }
+
+  factory Usuario.fromMap(Map<String, dynamic> map) {
+    return Usuario(
+      id: map['id'],
+      nome: map['nome'],
     );
   }
 }
@@ -39,21 +59,23 @@ class ContatoRepository {
     return openDatabase(
       dbPath,
       onCreate: (db, version) {
-
         return db.execute(
-          'CREATE TABLE contatos(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT, email TEXT)', // cria a table de contatos ao iniciar o BD
+          '''
+          CREATE TABLE contatos(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            nome TEXT, 
+            telefone TEXT, 
+            email TEXT
+          );
+          CREATE TABLE usuarios(
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            nome TEXT
+          );
+          ''',
         );
       },
       version: 1,
     );
-  }
-
-  Future<Database> _getDatabase() async {
-    if (_database != null) {
-      return _database!; // retorna o BD se já estiver iniciado
-    }
-    _database = await _initDatabase(); // inicializa o BD se ainda não estiver
-    return _database!;
   }
 
   Future<void> addContato(Contato contato) async { // add um contato ao BD
@@ -65,14 +87,13 @@ class ContatoRepository {
     );
   }
 
-  Future<void> updateContato(Contato contato) async { // atualizar um contato existente no BD
+  Future<List<Contato>> getContatos() async { // lista todos os contatos armazenados
     final db = await _getDatabase(); // Obtém o banco de dados
-    await db.update(
-      'contatos',
-      contato.toMap(),
-      where: 'id = ?',
-      whereArgs: [contato.id], // passa o ID do contato como arg para a condicao
-    );
+    final List<Map<String, dynamic>> maps = await db.query('contatos');
+
+    return List.generate(maps.length, (i) {
+      return Contato.fromMap(maps[i]);
+    });
   }
 
   Future<void> removeContato(int id) async { // remover um contato do BD
@@ -80,16 +101,37 @@ class ContatoRepository {
     await db.delete(
       'contatos',
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [id], // passa o ID do contato como arg para a condicao
     );
   }
 
-  Future<List<Contato>> getContatos() async { // lista todos os contatos armazenados
+  Future<void> addUsuario(Usuario usuario) async {
     final db = await _getDatabase();
-    final List<Map<String, dynamic>> maps = await db.query('contatos');
+    await db.insert(
+      'usuarios',
+      usuario.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 
-    return List.generate(maps.length, (i) {
-      return Contato.fromMap(maps[i]);
-    });
+  Future<Usuario?> getUsuario(String nome) async {
+    final db = await _getDatabase();
+    final List<Map<String, dynamic>> maps = await db.query(
+      'usuarios',
+      where: 'nome = ?',
+      whereArgs: [nome],
+    );
+
+    if (maps.isNotEmpty) {
+      return Usuario.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<Database> _getDatabase() async {
+    if (_database == null) {
+      _database = await _initDatabase();
+    }
+    return _database!;
   }
 }
