@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'contato_repository.dart';
 import 'cadastro.dart';
 import 'listagem.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Login extends StatefulWidget {
   final ContatoRepository contatos;
@@ -17,14 +17,17 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   late String _nome;
 
+  final _secureStorage = FlutterSecureStorage();
+
   void _login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final usuario = await widget.contatos.getUsuario(_nome);
 
       if (usuario != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('usuario', _nome);
+
+        await _secureStorage.write(key: 'usuario', value: _nome);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -81,3 +84,4 @@ class _LoginState extends State<Login> {
     );
   }
 }
+
